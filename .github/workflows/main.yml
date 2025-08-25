@@ -18,7 +18,7 @@ jobs:
       - name: Checkout databricks-repo
         uses: actions/checkout@v3
         with:
-          repository: your-org/databricks-repo
+          repository: ronlesteve/databricks-repo
           ref: main
 
       # 3. Setup Python environment
@@ -63,7 +63,7 @@ jobs:
           DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
         run: |
           pip install --upgrade databricks-cli
-          databricks workspace import_dir ./notebooks /Workspace/Users/your-prod-user@databricks.com/notebooks --overwrite
+          databricks workspace import_dir ./notebooks /Workspace/Users/lesteveron@gmail.com/notebooks --overwrite
 
       # 10. Complete Job
       - name: Complete Deployment Job
