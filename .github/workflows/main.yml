@@ -1,0 +1,51 @@
+name: Deploy from Dev Repo to Prod Databricks Workspace
+
+on:
+  push:
+    branches:
+      - main  # branch where Dev workspace commits are pushed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout your Databricks repo main branch (Dev assets)
+      - name: Checkout Dev Repo Code
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      # Setup Python environment if needed for any scripts or tooling
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      # Install Python dependencies if you have any
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Setup Databricks CLI to interact with workspaces
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@v1
+
+      # OPTIONAL - Use Dev workspace credentials if you need to run any validation or fetch metadata from Dev
+      - name: (Optional) Validate or sync with Dev Workspace
+        env:
+          DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
+          DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
+        run: |
+          # Example: list dev workspace contents or validate something if needed
+          databricks workspace list /Users/your-dev-user@databricks.com/notebooks || echo "Listing Dev assets"
+
+      # Deploy to Prod Databricks workspace from checked out repo
+      - name: Deploy to Prod Workspace
+        env:
+          DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
+          DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
+        run: |
+          databricks workspace import_dir ./notebooks /Users/your-prod-user@databricks.com/notebooks --overwrite
+          # Add any other deployment commands here for workflows, libraries, etc.
