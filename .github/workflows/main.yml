@@ -43,7 +43,7 @@ jobs:
       needs: dev-deploy
       run-on: ubuntu-latest
       environment: production
-        env:
+      env:
           DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
           DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
           REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
