@@ -2,69 +2,73 @@ name: Deploy to Prod Databricks Workspace
 
 on:
   push:
+    paths-ignore:
+      - .github/**
     branches:
-      - main  # Trigger on pushes to main branch of databricks-repo
+      - main  
 
 jobs:
-  deploy:
+  dev-deploy:
     runs-on: ubuntu-latest
+    environment: development
+    env:
+          DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
+          DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
+          REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
+
 
     steps:
-      # 1. Setup Job Environment
-      - name: Setup Job Environment
-        run: echo "Starting deployment job..."
-
-      # 2. Checkout databricks-repo
-      - name: Checkout databricks-repo
+      - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: ronlesteve/databricks-repo
-          ref: main
 
-      # 3. Setup Python environment
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
-      # 4. Setup Databricks CLI
       - name: Setup Databricks CLI
         uses: databricks/setup-cli@main
 
-      # 5. Extract branch name
       - name: Extract Branch Name
         id: extract_branch
         run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
-      # 6. Update Databricks Repo (Dev workspace)
       - name: Update Databricks Repo (Dev workspace)
-        env:
-          DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
-          DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
+        
         run: |
-          databricks repos update /Workspace/Users/lesteveron@gmail.com/databricks-repo --branch $BRANCH_NAME
+          databricks repos update "${{ env.REPOSITORY_PATH }}" \
+            --branch "${{ steps.extract_branch_dev.outputs.branch }}"
 
-      # 7. Post Setup Python (install dependencies if any)
-      - name: Post Setup Python Tasks
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      # 8. Post Checkout Repo (show latest commit info)
-      - name: Show Latest Commit Info
-        run: |
-          echo "Last commit author: $(git log -1 --pretty=format:'%an <%ae>')"
-          echo "Last commit message: $(git log -1 --pretty=%B)"
-
-      # 9. Deploy to Prod Databricks Workspace
-      - name: Deploy to Prod Workspace
+  prd-deploy
+      needs: dev-deploy
+      run-on: ubuntu-latest
+      environment: production
         env:
           DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
           DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
-        run: |
-          pip install --upgrade databricks-cli
-          databricks workspace import_dir ./notebooks /Workspace/Users/lesteveron@gmail.com/notebooks --overwrite
+          REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
 
-      # 10. Complete Job
-      - name: Complete Deployment Job
-        run: echo "Deployment job finished successfully!"
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Extract Branch Name
+        id: extract_branch
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Update Databricks Repo (Prd workspace)
+        
+        run: |
+          databricks repos update "${{ env.REPOSITORY_PATH }}" \
+            --branch "${{ steps.extract_branch_prd.outputs.branch }}"
+
+
+    
