@@ -1,43 +1,70 @@
-name: Deploy from Dev Repo to Prod Databricks Workspace
+name: Deploy to Prod Databricks Workspace
 
 on:
   push:
     branches:
-      - main  # Trigger deployment on pushes to main branch
+      - main  # Trigger on pushes to main branch of databricks-repo
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository code (code committed by Dev workspace)
-      - name: Checkout Repository
+      # 1. Setup Job Environment
+      - name: Setup Job Environment
+        run: echo "Starting deployment job..."
+
+      # 2. Checkout databricks-repo
+      - name: Checkout databricks-repo
         uses: actions/checkout@v3
         with:
+          repository: your-org/databricks-repo
           ref: main
 
-      # Setup Python environment (if you need Python tooling)
+      # 3. Setup Python environment
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
-      # Install Python dependencies (optional)
-      - name: Install dependencies
+      # 4. Setup Databricks CLI
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@main
+
+      # 5. Extract branch name
+      - name: Extract Branch Name
+        id: extract_branch
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      # 6. Update Databricks Repo (Dev workspace)
+      - name: Update Databricks Repo (Dev workspace)
+        env:
+          DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
+          DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
+        run: |
+          databricks repos update /Workspace/Repos/your-dev-repo-path --branch $BRANCH_NAME
+
+      # 7. Post Setup Python (install dependencies if any)
+      - name: Post Setup Python Tasks
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # Setup Databricks CLI (latest version)
-      - name: Setup Databricks CLI
-        uses: databricks/setup-cli@main
+      # 8. Post Checkout Repo (show latest commit info)
+      - name: Show Latest Commit Info
+        run: |
+          echo "Last commit author: $(git log -1 --pretty=format:'%an <%ae>')"
+          echo "Last commit message: $(git log -1 --pretty=%B)"
 
-      # Deploy assets (e.g., notebooks folder) from repo to Prod workspace
-      - name: Deploy to Prod Databricks Workspace
+      # 9. Deploy to Prod Databricks Workspace
+      - name: Deploy to Prod Workspace
         env:
           DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
           DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
         run: |
-          databricks workspace import_dir ./notebooks /Users/lesteveron@gmail.com/notebooks --overwrite
+          pip install --upgrade databricks-cli
+          databricks workspace import_dir ./notebooks /Workspace/Users/your-prod-user@databricks.com/notebooks --overwrite
 
-
+      # 10. Complete Job
+      - name: Complete Deployment Job
+        run: echo "Deployment job finished successfully!"
