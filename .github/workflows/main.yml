@@ -39,7 +39,7 @@ jobs:
           databricks repos update "${{ env.REPOSITORY_PATH }}" \
             --branch "${{ steps.extract_branch_dev.outputs.branch }}"
 
-  prd-deploy
+  prd-deploy:
       needs: dev-deploy
       run-on: ubuntu-latest
       environment: production
