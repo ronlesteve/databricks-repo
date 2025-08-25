@@ -42,7 +42,7 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
           DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
         run: |
-          databricks repos update /Workspace/Repos/your-dev-repo-path --branch $BRANCH_NAME
+          databricks repos update /Workspace/Repos/databricks-repo --branch $BRANCH_NAME
 
       # 7. Post Setup Python (install dependencies if any)
       - name: Post Setup Python Tasks
