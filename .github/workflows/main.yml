@@ -38,7 +38,6 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
           DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
         run: |
-          databricks workspace import_dir ./notebooks /Users/your-prod-user@databricks.com/notebooks --overwrite
-          # Add more deployment commands here if needed (e.g., workflows, libraries)
+          databricks workspace import_dir ./notebooks /Users/ronlesteve@gmail.com/notebooks --overwrite
 
-      # Optionally, add steps to trigger job runs or further validation here
+
