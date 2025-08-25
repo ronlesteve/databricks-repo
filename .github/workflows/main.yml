@@ -38,6 +38,6 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
           DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
         run: |
-          databricks workspace import_dir ./notebooks /Users/ronlesteve@gmail.com/notebooks --overwrite
+          databricks workspace import_dir ./notebooks /Users/lesteveron@gmail.com/notebooks --overwrite
 
 
