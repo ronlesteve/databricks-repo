@@ -12,10 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     env:
-          DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
-          DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
-          REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
-
+      DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
+      DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
+      REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
 
     steps:
       - name: Checkout repo
@@ -34,19 +33,17 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
       - name: Update Databricks Repo (Dev workspace)
-        
         run: |
-          databricks repos update "${{ env.REPOSITORY_PATH }}" \
-            --branch "${{ steps.extract_branch_dev.outputs.branch }}"
+          databricks repos update "${{ env.REPOSITORY_PATH }}" --branch "${BRANCH_NAME}"
 
   prd-deploy:
-      needs: dev-deploy
-      run-on: ubuntu-latest
-      environment: production
-      env:
-          DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
-          DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
-          REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
+    needs: dev-deploy
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
+      DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
+      REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
 
     steps:
       - name: Checkout repo
@@ -64,11 +61,6 @@ jobs:
         id: extract_branch
         run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
-      - name: Update Databricks Repo (Prd workspace)
-        
+      - name: Update Databricks Repo (Prod workspace)
         run: |
-          databricks repos update "${{ env.REPOSITORY_PATH }}" \
-            --branch "${{ steps.extract_branch_prd.outputs.branch }}"
-
-
-    
+          databricks repos update "${{ env.REPOSITORY_PATH }}" --branch "${BRANCH_NAME}"
