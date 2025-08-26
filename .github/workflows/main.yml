@@ -14,11 +14,17 @@ jobs:
     env:
       DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
       DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
-      REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Extract Commit Author Email and set REPOSITORY_PATH
+        id: extract_email
+        run: |
+          AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
+          echo "AUTHOR_EMAIL=$AUTHOR_EMAIL" >> $GITHUB_ENV
+          echo "REPOSITORY_PATH=/Workspace/Users/$AUTHOR_EMAIL/databricks-repo" >> $GITHUB_ENV
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -43,11 +49,17 @@ jobs:
     env:
       DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
       DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
-      REPOSITORY_PATH: /Workspace/Users/lesteveron@gmail.com/databricks-repo
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Extract Commit Author Email and set REPOSITORY_PATH
+        id: extract_email
+        run: |
+          AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
+          echo "AUTHOR_EMAIL=$AUTHOR_EMAIL" >> $GITHUB_ENV
+          echo "REPOSITORY_PATH=/Workspace/Users/$AUTHOR_EMAIL/databricks-repo" >> $GITHUB_ENV
 
       - name: Setup Python
         uses: actions/setup-python@v5
