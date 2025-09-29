@@ -1,0 +1,54 @@
+{
+  "evaluation": {
+    "source": {
+      "name": "mismatch_flag",
+      "display": "mismatch_flag",
+      "aggregation": "SUM"
+    },
+    "comparison_operator": "GREATER_THAN",
+    "threshold": {
+      "value": {
+        "double_value": 0.0
+      }
+    },
+    "notification": {
+      "retrigger_seconds": 0,
+      "notify_on_ok": false
+    }
+  },
+  "schedule": {
+    "quartz_cron_schedule": "1 * * * * ?",
+    "timezone_id": "America/Belize"
+  },
+  "query_lines": [
+    "SELECT \r",
+    "  column_name,\r",
+    "  source_count,\r",
+    "  target_count,\r",
+    "  CASE WHEN source_count != target_count THEN 1 ELSE 0 END AS mismatch_flag\r",
+    "FROM (\r",
+    "  SELECT 'id' AS column_name,\r",
+    "    (SELECT COUNT(id) FROM demo_source) AS source_count,\r",
+    "    (SELECT COUNT(id) FROM demo_target) AS target_count\r",
+    "  UNION ALL\r",
+    "  SELECT 'name' AS column_name,\r",
+    "    (SELECT COUNT(name) FROM demo_source),\r",
+    "    (SELECT COUNT(name) FROM demo_target)\r",
+    "  UNION ALL\r",
+    "  SELECT 'value' AS column_name,\r",
+    "    (SELECT COUNT(value) FROM demo_source),\r",
+    "    (SELECT COUNT(value) FROM demo_target)\r",
+    ") t"
+  ],
+  "custom_description_lines": [
+    "<h2>Data Mismatch Alert</h2>",
+    "<p>The record counts for columns between source and target are:</p>",
+    "",
+    "<!-- This inserts the HTML table from the alert query result -->",
+    "{{QUERY_RESULT_TABLE}}",
+    "",
+    "<p>Alert Name: {{ALERT_NAME}}</p>",
+    "<p>Status: {{ALERT_STATUS}}</p>",
+    "<p>View query: <a href=\"{{QUERY_URL}}\">{{QUERY_NAME}}</a></p>"
+  ]
+}
