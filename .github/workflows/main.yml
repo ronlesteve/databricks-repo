@@ -1,4 +1,4 @@
-name: Deploy to Prod Databricks Workspace
+name: Deploy to Dev Databricks Workspace
 
 on:
   push:
@@ -10,11 +10,7 @@ on:
 jobs:
   dev-deploy:
     runs-on: ubuntu-latest
-    environment: development
-    env:
-      DATABRICKS_HOST: ${{ secrets.DEV_DEPLOY_URL }}
-      DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOY_TOKEN }}
-
+    environment: dev
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -40,39 +36,4 @@ jobs:
 
       - name: Update Databricks Repo (Dev workspace)
         run: |
-          databricks repos update "${{ env.REPOSITORY_PATH }}" --branch "${BRANCH_NAME}"
-
-  prd-deploy:
-    needs: dev-deploy
-    runs-on: ubuntu-latest
-    environment: production
-    env:
-      DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
-      DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Extract Commit Author Email and set REPOSITORY_PATH
-        id: extract_email
-        run: |
-          AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
-          echo "AUTHOR_EMAIL=$AUTHOR_EMAIL" >> $GITHUB_ENV
-          echo "REPOSITORY_PATH=/Workspace/Users/$AUTHOR_EMAIL/databricks-repo" >> $GITHUB_ENV
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-
-      - name: Setup Databricks CLI
-        uses: databricks/setup-cli@main
-
-      - name: Extract Branch Name
-        id: extract_branch
-        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-
-      - name: Update Databricks Repo (Prod workspace)
-        run: |
-          databricks repos update "${{ env.REPOSITORY_PATH }}" --branch "${BRANCH_NAME}"
+          databricks repos update "${{ env.REPOSITORY_PATH }}" --branch "${BRANCH_NAME}"  
