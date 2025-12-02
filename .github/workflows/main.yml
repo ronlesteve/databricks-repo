@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - .github/**
     branches:
-      - main  
+      - main
 
 jobs:
   dev-deploy:
@@ -36,4 +36,4 @@ jobs:
 
       - name: Update Databricks Repo (Dev workspace)
         run: |
-          databricks repos update "${{ env.REPOSITORY_PATH }}" --branch "${BRANCH_NAME}"  
+          databricks repos update "${{ env.REPOSITORY_PATH }}" --branch "${BRANCH_NAME}"
