@@ -47,8 +47,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      DATABRICKS_HOST: ${{ secrets.PRD_DEPLOY_URL }}
-      DATABRICKS_TOKEN: ${{ secrets.PRD_DEPLOY_TOKEN }}
+      DATABRICKS_HOST: ${{ secrets.PROD_DEPLOY_URL }}
+      DATABRICKS_TOKEN: ${{ secrets.PROD_DEPLOY_TOKEN }}
 
     steps:
       - name: Checkout repo
