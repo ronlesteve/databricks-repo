@@ -1,0 +1,45 @@
+Options to connect to Databricks from AI code assist tools
+Connect non‑Databricks clients to Databricks MCP servers:
+https://learn.microsoft.com/en-us/azure/databricks/generative-ai/mcp/connect-external-services
+
+AI Dev Kit VS Code installation instructions
+https://github.com/databricks-solutions/ai-dev-kit
+
+Claude Desktop config file additions:
+
+
+{
+  "mcpServers": {
+    "databricks": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "C:\\Users\\YourAccountName\\.ai-dev-kit\\repo\\databricks-mcp-server",
+        "python",
+        "run_server.py"
+      ],
+      "env": {
+        "DATABRICKS_HOST": "ENTER-DATABRICKS-WORKSPACE-URL-HERE",
+        "DATABRICKS_TOKEN": "ENTER-DATABRICKS-PAT-TOKEN-HERE"
+      }
+    }
+  },
+  "preferences": {
+    "coworkScheduledTasksEnabled": true,
+    "ccdScheduledTasksEnabled": true,
+    "sidebarMode": "chat",
+    "coworkWebSearchEnabled": false
+  }
+}
+pyproject.toml file edits (in the AI Dev Kit repo):
+
+Edit the Python requirement:
+
+
+requires-python = ">=3.10"
+Add at the bottom:
+
+
+[tool.uv.sources]
+databricks-tools-core = { path = "../databricks-tools-core" }
